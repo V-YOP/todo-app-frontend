@@ -2,8 +2,8 @@ import axios, { AxiosPromise } from "axios"
 import { Result } from "../model/Result"
 import { Task } from "../model/Task"
 
-const BASE_URL = 'http://127.0.0.1:1976'
-// const BASE_URL = '//service-k7zugq20-1259498433.gz.apigw.tencentcs.com/release'
+// const BASE_URL = 'http://127.0.0.1:1976'
+const BASE_URL = 'https://service-k7zugq20-1259498433.gz.apigw.tencentcs.com/release'
 
 const USER_BASE_URL = `${BASE_URL}/user`
 const TASK_BASE_URL = `${BASE_URL}/task`

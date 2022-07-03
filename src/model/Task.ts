@@ -15,7 +15,7 @@ export type Task = {
 export function taskToString(task: Task) : string {
     return [
         task.id,
-        task.done,
+        task.done ? 'X' : null,
         task.priority === 'NONE' ? null : `(${task.priority})`,
         task.endDate,
         task.startDate,

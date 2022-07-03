@@ -23,7 +23,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "cli": "node --experimental-specifier-resolution=node --no-warnings --loader ts-node/esm src/CLI.ts"
+    "cli": "node --no-addons --experimental-specifier-resolution=node --no-warnings --loader ts-node/esm src/CLI.ts"
   },
   "eslintConfig": {
     "extends": [
