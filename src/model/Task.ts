@@ -11,3 +11,14 @@ export type Task = {
     contextTags: [string],
     kvTags: Record<string, [string]>
 }
+
+export function taskToString(task: Task) : string {
+    return [
+        task.id,
+        task.done,
+        task.priority === 'NONE' ? null : `(${task.priority})`,
+        task.endDate,
+        task.startDate,
+        task.descriptionTokens.join(' ')
+    ].filter(item => item).join('\t')
+}
