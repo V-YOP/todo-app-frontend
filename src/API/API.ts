@@ -98,7 +98,7 @@ function getOutdatedTask(): APIResponse<Array<Task>> {
 } 
 
 function addTask(task: string): APIResponse<number> {
-    return axiosInstance.post(TASK_ADD, toQueryParam({task}))    
+    return axiosInstance.post(TASK_ADD, [task])    
 } 
 
 function doneTask(taskId: number): APIResponse<void> {

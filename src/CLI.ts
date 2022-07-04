@@ -1,5 +1,5 @@
 import { API } from "./API/API";
-import { Task, taskToString } from "./model/Task";
+import { formatTasks, Task } from "./model/Task";
 
 const VALID_COMMAND = ['ls', 'list', 'add', 'del', 'done', 'help']
 
@@ -28,7 +28,7 @@ async function main() {
         case 'ls':
         case 'list':
             const tasks = await ls()
-            console.log(tasks.map(taskToString).join('\n'))
+            console.log(formatTasks(tasks))
             break;
         case 'add':
             const id = await add(args.join(' '))
@@ -45,4 +45,4 @@ async function main() {
     }
 }
 
-main().catch(e => {console.log(e.response.data.message)})
+main().catch(e => {console.log(e?.response?.data?.message || e.code)})
