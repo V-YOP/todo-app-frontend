@@ -1,0 +1,1 @@
+This Directory contains every configuration used by **Application**, regardless of user's personal config.

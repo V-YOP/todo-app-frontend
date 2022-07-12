@@ -1,0 +1,1 @@
+This directory contains custom components used by layouts for reuse.

@@ -1,9 +1,11 @@
-import axios, { AxiosPromise } from "axios"
-import { Result } from "../model/Result"
+import axios, { AxiosError, AxiosPromise } from "axios"
+import { BadResult, Result } from "../model/Result"
 import { Task } from "../model/Task"
 
 // const BASE_URL = 'http://127.0.0.1:1976'
 const BASE_URL = 'https://service-k7zugq20-1259498433.gz.apigw.tencentcs.com/release'
+
+const ALIVE_CHECK = `${BASE_URL}/alive`
 
 const USER_BASE_URL = `${BASE_URL}/user`
 const TASK_BASE_URL = `${BASE_URL}/task`
@@ -33,80 +35,98 @@ function toQueryParam(data: Array<[string, any]> | Record<string, any>): string 
     return toQueryParam(Object.entries(data))
 }
 
-type APIResponse<T> = AxiosPromise<Result<T>>
+type APIResponse<T> = Promise<Result<T> | BadResult<T>>
+
+/**
+ * 对error进行预先处理，如果是后端返回来的错误（此时状态码为40x或50x），则认为是正确返回，如果是其它错误（比如根本没打到后端），则认为是错误
+ * @returns 
+ */
+function axiosErrorHandler<T>(){
+    return (error: Error | AxiosError<T>) => {
+        if (axios.isAxiosError(error)) {
+            return error.response?.data as T
+        }
+        throw error // 未处理的内容
+    }
+ }
+
+function checkIfAlive(): Promise<boolean> {
+    return axiosInstance.get(ALIVE_CHECK)
+        .catch(axiosErrorHandler<Result<number>>())
+        .then(r => r.data.data as number === 42)
+}
 
 function login(
     userId: string,
     passwd: string,
     rememberMe: boolean = false) : APIResponse<void> {
-    return axiosInstance.post(USER_LOGIN, toQueryParam({userId,passwd,rememberMe})).then(response => {
-        const cookie = (response.headers["set-cookie"] as string[])
-                            .map(str=>str.split(';',1)[0])
-                            .join(';')
-
-        // node环境下好像得手动设置cookie？
-        axiosInstance.defaults.headers.get = {
-            ...axiosInstance.defaults.headers.get,
-            Cookie:cookie
-        }
-        axiosInstance.defaults.headers.post = {
-            ...axiosInstance.defaults.headers.post,
-            Cookie:cookie
-        }
-        return response
-    })
+    return axiosInstance.post<Result<void>>(USER_LOGIN, toQueryParam({userId,passwd,rememberMe}))
+        .then(r => r.data)
+        .catch(axiosErrorHandler<Result<void>>())
 }
 
 function signup(
     userId: string,
     passwd: string,
     userName: string) : APIResponse<void> {
-    return axiosInstance.post(USER_SIGNUP, toQueryParam({userId, passwd, userName}))
+    return axiosInstance.post<Result<void>>(USER_SIGNUP, toQueryParam({userId, passwd, userName})).then(r => r.data)
+        .catch(axiosErrorHandler())
 }
 
-function isLogin() : Promise<boolean> {
-    return axiosInstance.get(USER_ISLOGIN)
+function isLogin() : APIResponse<boolean> {
+    return axiosInstance.get<Result<boolean>>(USER_ISLOGIN)
+        .then(r => r.data)
+        .catch(axiosErrorHandler())
 }
 
-// TODO 为此定义对应的结果类型？
 function status() : APIResponse<Record<string, any>> {
-    return axiosInstance.get(USER_STATUS)
+    return axiosInstance.get(USER_STATUS).then(r => r.data)
+        .catch(axiosErrorHandler())
 }
 
 function logout() : APIResponse<void> {
-    return axiosInstance.get(USER_LOGOUT)
+    return axiosInstance.get(USER_LOGOUT).then(r => r.data)
+        .catch(axiosErrorHandler())
 }
 
 function getTask(taskId: number): APIResponse<Task> {
-    return axiosInstance.get(`${TASK_GET}?${toQueryParam({taskId})}`)
+    return axiosInstance.get(`${TASK_GET}?${toQueryParam({taskId})}`).then(r => r.data)
+    .catch(axiosErrorHandler())
 }
 
 function getAllTask(): APIResponse<Array<Task>> {
-    return axiosInstance.get(TASK_GET_ALL)
+    return axiosInstance.get(TASK_GET_ALL).then(r => r.data)
+    .catch(axiosErrorHandler())
 }
 
 function getValidTask(): APIResponse<Array<Task>> {
-    return axiosInstance.get(TASK_GET_VALID)    
+    return axiosInstance.get(TASK_GET_VALID).then(r => r.data)
+    .catch(axiosErrorHandler())
 } 
 
 function getUnfinishedTask(): APIResponse<Array<Task>> {
-    return axiosInstance.get(TASK_GET_UNFINISHED)    
+    return axiosInstance.get(TASK_GET_UNFINISHED).then(r => r.data)
+    .catch(axiosErrorHandler())
 } 
 
 function getOutdatedTask(): APIResponse<Array<Task>> {
-    return axiosInstance.get(TASK_GET_OUTDATED)    
+    return axiosInstance.get(TASK_GET_OUTDATED).then(r => r.data)
+    .catch(axiosErrorHandler())
 } 
 
 function addTask(task: string): APIResponse<number> {
-    return axiosInstance.post(TASK_ADD, [task])    
+    return axiosInstance.post(TASK_ADD, [task]).then(r => r.data)
+    .catch(axiosErrorHandler())
 } 
 
 function doneTask(taskId: number): APIResponse<void> {
-    return axiosInstance.post(TASK_DONE, toQueryParam({taskId}))    
+    return axiosInstance.post(TASK_DONE, toQueryParam({taskId})).then(r => r.data)
+    .catch(axiosErrorHandler())
 } 
 
 function delTask(taskId: number): APIResponse<void> {
-    return axiosInstance.post(TASK_DEL, toQueryParam({taskId}))    
+    return axiosInstance.post(TASK_DEL, toQueryParam({taskId})).then(r => r.data)
+    .catch(axiosErrorHandler())
 } 
 
 export const API = {
