@@ -1,7 +1,7 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import MainRouter from './layout/MainRouter';
-import reportWebVitals from './reportWebVitals';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import MainRouter from './layout/MainRouter'
+import reportWebVitals from './reportWebVitals'
 
 import 'semantic-ui-css/semantic.min.css'
 
